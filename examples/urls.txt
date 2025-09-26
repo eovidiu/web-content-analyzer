@@ -1,0 +1,17 @@
+# Example URLs for batch processing
+# Technology and AI
+https://openai.com
+https://anthropic.com
+
+# News and Information
+https://news.ycombinator.com
+https://techcrunch.com
+
+# Documentation
+https://docs.python.org/3/
+
+# E-commerce
+https://amazon.com
+
+# Educational
+https://wikipedia.org
