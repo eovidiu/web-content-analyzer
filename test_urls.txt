@@ -1,0 +1,10 @@
+https://example.com
+https://wikipedia.org
+https://github.com/anthropics/claude-code
+https://news.ycombinator.com
+https://stackoverflow.com/questions/1
+https://www.reddit.com/r/programming
+https://medium.com/@golang/introducing-go-1-18-beta-1-3b47b8f55b2f
+https://docs.python.org/3/
+https://www.nature.com/
+https://techcrunch.com
