@@ -3,7 +3,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "uv run python server.py",
+    "startCommand": "uv run playwright install chromium && uv run python server.py",
     "healthcheckPath": "/health"
   }
 }
