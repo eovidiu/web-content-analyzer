@@ -29,6 +29,13 @@ class StandaloneWebScraper:
 
     def scrape(self, url: str) -> str:
         """Scrape content from the given URL."""
+        # Use HTTP scraper by default for Railway deployment
+        import os
+        if os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('PORT'):
+            logger.info("Railway environment detected, using HTTP scraper")
+            return self._scrape_url_http(url)
+
+        # Try Playwright only in local environments
         if PLAYWRIGHT_AVAILABLE:
             try:
                 return asyncio.run(self._scrape_url_playwright(url))
