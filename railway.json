@@ -1,9 +1,8 @@
 {
   "build": {
-    "builder": "NIXPACKS"
+    "builder": "DOCKERFILE"
   },
   "deploy": {
-    "startCommand": "uv run playwright install chromium && uv run python server.py",
     "healthcheckPath": "/health"
   }
 }
