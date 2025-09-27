@@ -3,9 +3,16 @@
 import asyncio
 import logging
 import re
+import requests
 from typing import List, Optional
 
-from playwright.async_api import async_playwright
+# Try to import Playwright, fall back if not available
+try:
+    from playwright.async_api import async_playwright
+    PLAYWRIGHT_AVAILABLE = True
+except ImportError:
+    PLAYWRIGHT_AVAILABLE = False
+
 from bs4 import BeautifulSoup
 from anthropic import Anthropic
 
@@ -22,11 +29,44 @@ class StandaloneWebScraper:
 
     def scrape(self, url: str) -> str:
         """Scrape content from the given URL."""
-        return asyncio.run(self._scrape_url(url))
+        if PLAYWRIGHT_AVAILABLE:
+            try:
+                return asyncio.run(self._scrape_url_playwright(url))
+            except Exception as e:
+                logger.warning(f"Playwright failed for {url}, falling back to HTTP: {str(e)}")
+                return self._scrape_url_http(url)
+        else:
+            logger.info("Playwright not available, using HTTP scraper")
+            return self._scrape_url_http(url)
 
-    async def _scrape_url(self, url: str) -> str:
+    def _scrape_url_http(self, url: str) -> str:
+        """HTTP-based scraper fallback."""
+        logger.info(f"HTTP scraping URL: {url}")
+
+        try:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+
+            response = requests.get(url, headers=headers, timeout=self.timeout_seconds)
+            response.raise_for_status()
+
+            cleaned_content = self._extract_text_content(response.text)
+            logger.info(f"Successfully HTTP scraped {len(cleaned_content)} characters from {url}")
+            return cleaned_content
+
+        except requests.RequestException as e:
+            error_msg = f"HTTP request failed: {str(e)}"
+            logger.error(error_msg)
+            return f"ERROR: {error_msg}"
+        except Exception as e:
+            error_msg = f"HTTP scraping failed: {str(e)}"
+            logger.error(error_msg)
+            return f"ERROR: {error_msg}"
+
+    async def _scrape_url_playwright(self, url: str) -> str:
         """Async method to scrape content from URL using Playwright."""
-        logger.info(f"Starting to scrape URL: {url}")
+        logger.info(f"Playwright scraping URL: {url}")
 
         try:
             async with async_playwright() as p:
@@ -54,7 +94,7 @@ class StandaloneWebScraper:
                         return "ERROR: Content size exceeds 10MB limit"
 
                     cleaned_content = self._extract_text_content(content)
-                    logger.info(f"Successfully scraped {len(cleaned_content)} characters from {url}")
+                    logger.info(f"Successfully Playwright scraped {len(cleaned_content)} characters from {url}")
                     return cleaned_content
 
                 except Exception as e:
